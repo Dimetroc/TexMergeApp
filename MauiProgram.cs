@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
+using TexMerge.Core;
 
 namespace TexMergeApp;
 
@@ -17,6 +18,7 @@ public static class MauiProgram
 
 		builder.Services.AddMauiBlazorWebView();
         builder.Services.AddMudServices();
+		builder.Services.AddSingleton<ITextureMerger, TextureMerger>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

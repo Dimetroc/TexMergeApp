@@ -1,0 +1,77 @@
+﻿@using MudBlazor
+
+@page "/"
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudGrid>
+        <!-- Left Column -->
+        <MudItem xs="12" md="5" lg="4">
+            <MudPaper Class="pa-6" Elevation="2">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h5">Inputs</MudText>
+
+                    <MudStack Row="true" Spacing="2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SelectInputFolder">
+                            Select Input Folder
+                        </MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SelectOutputFolder">
+                            Select Output Folder
+                        </MudButton>
+                    </MudStack>
+
+                    <MudTextField Label="File name" Variant="Variant.Outlined" @bind-Value="_fileName" />
+
+                    <MudSwitch Label="Use Extra" @bind-Value="_useExtra" />
+                    <MudSwitch Label="Pack Extra" @bind-Value="_packExtra" />
+                    <MudSwitch Label="Replace Transparent" @bind-Value="_replaceTransparent" />
+
+                    <MudDivider Class="my-2" />
+
+                    <MudStack Row="true" Spacing="2">
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="MergeTextures">
+                            Merge Textures
+                        </MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="PackExtra">
+                            Pack Extra
+                        </MudButton>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Right Column -->
+        <MudItem xs="12" md="7" lg="8">
+            <MudPaper Class="pa-6" Elevation="2" Style="height:100%; overflow:auto;">
+                <MudText Typo="Typo.h5" Class="mb-2">Log</MudText>
+                <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">@_logText</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private string _fileName = "combined_texture";
+    private bool _useExtra;
+    private bool _packExtra;
+    private bool _replaceTransparent;
+    private string _logText = "Application started...\n";
+
+    private void SelectInputFolder()
+    {
+        _logText += "Select Input Folder clicked.\n";
+    }
+
+    private void SelectOutputFolder()
+    {
+        _logText += "Select Output Folder clicked.\n";
+    }
+
+    private void MergeTextures()
+    {
+        _logText += $"Merging: {_fileName} | Extra: {_useExtra} | Replace Transparent: {_replaceTransparent}\n";
+    }
+
+    private void PackExtra()
+    {
+        _logText += "Packing extra...\n";
+    }
+}

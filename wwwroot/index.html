@@ -9,8 +9,17 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="TexMergeApp.styles.css" />
     <link rel="icon" href="data:,">
-    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+
+    <style>
+        /* fill the viewport with the theme’s background color */
+        html, body, #app {
+            height: 100%;
+            margin: 0;
+            background-color: var(--mud-palette-background);
+        }
+    </style>
 </head>
 
 <body>
@@ -26,6 +35,7 @@
     </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js?v=1"></script>
 
 </body>
 
