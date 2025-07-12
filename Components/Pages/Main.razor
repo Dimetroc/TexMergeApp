@@ -2,13 +2,14 @@
 @using Microsoft.Maui.Storage
 @using TexMergeApp.Services
 @inject IFolderPicker FolderPicker
+@inject ITextureMerger TextureMerger
 
 @page "/"
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
     <MudGrid>
         <!-- Left Column -->
-        <MudItem xs="6" md="5" lg="4">
-            <MudPaper Class="pa-6" Elevation="2">
+        <MudItem xs="6" md="5" lg="4" Style="min-width: 500px; min-height: 900px; height:900px">
+            <MudPaper Class="pa-6" Elevation="2" Style="min-width: 500px; min-height: 900px; height:900px">
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.h5">Inputs</MudText>
 
@@ -43,18 +44,21 @@
                     <MudDivider Class="my-2" />
 
                     <MudStack Row="true" Spacing="2">
-                        <MudButton FullWidth="true"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Success"
-                                   OnClick="MergeTextures">
-                            Merge Textures
-                        </MudButton>
-                        <MudButton FullWidth="true"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Secondary"
-                                   OnClick="PackExtra">
-                            Pack Extra
-                        </MudButton>
+                          <MudButton FullWidth="true"
+                               Variant="Variant.Filled"
+                               Color="Color.Success"
+                               Disabled="@_isBusy"
+                               OnClick="MergeTextures">
+                                @(_isBusy ? "Working..." : "Merge Textures")
+                            </MudButton>
+
+                            <MudButton FullWidth="true"
+                               Variant="Variant.Filled"
+                               Color="Color.Secondary"
+                               Disabled="@_isBusy"
+                               OnClick="PackExtra">
+                                @(_isBusy ? "Working..." : "Pack Extra")
+                            </MudButton>
                     </MudStack>
 
 
@@ -70,9 +74,13 @@
 
         <!-- Right Column -->
 
-        <MudItem xs="6" md="7" lg="8">
-          <MudPaper Class="pa-6 d-flex flex-column" Elevation="2" Style="height:400px">
+        <MudItem xs="6" md="7" lg="8" Style="min-width: 500px; min-height: 900px; height:900px">
+          <MudPaper Class="pa-6 d-flex flex-column" Elevation="2" Style="height:900px">
             <MudText Typo="Typo.h5" Class="mb-2">Log</MudText>
+            @if (_isBusy)
+            {
+                <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
+            }
             <MudPaper Class="pa-2" Elevation="0" Style="flex:1; overflow-y:auto;">
               <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">
                 @_logText
@@ -90,6 +98,8 @@
     private string _inputFolder;
     private string _outputFolder;
     private string _logText = "Application started...\n";
+    private bool _isBusy = false;
+    private CancellationTokenSource _cancellationTokenSource;
 
     private string _fileName = "Resullt_";
     public string FileName
@@ -127,11 +137,6 @@
         {
             _logText += $"Last output folder: {_outputFolder}\n";
         }
-
-        for (int i = 0; i < 100; i++)
-        {
-            _logText += $"Log entry {i + 1}\n"; // Example log entries
-        }
     }
 
     private async Task SelectInputFolder()
@@ -156,13 +161,65 @@
         }
     }
 
-    private void MergeTextures()
+    private async Task MergeTextures()
     {
-        _logText += $"Merging: {_fileName} | Extra: {_useExtra} | Replace Transparent: {_replaceTransparent}\n";
+        if (_isBusy) return;
+        _isBusy = true;
+        _cancellationTokenSource = new CancellationTokenSource();
+
+        try
+        {
+            TextureMerger.Options = new TexMerge.Core.Models.CombineOptions
+            {
+                InputPath = _inputFolder,
+                OutputPath = _outputFolder,
+                Name = FileName,
+                UseExtra = _useExtra,
+                PackExtra = _packExtra,
+                ReplaceTransperent = _replaceTransparent
+            };
+
+            TextureMerger.SetLogger(Log);
+            await TextureMerger.CombineAsync();
+        }
+        finally
+        {
+            _isBusy = false;
+            _cancellationTokenSource = null;
+        }
     }
 
-    private void PackExtra()
+    private async Task PackExtra()
     {
-        _logText += "Packing extra...\n";
+        if (_isBusy) return;
+        _isBusy = true;
+        _cancellationTokenSource = new CancellationTokenSource();
+
+        try
+        {
+            TextureMerger.Options = new TexMerge.Core.Models.CombineOptions
+            {
+                InputPath = _inputFolder,
+                OutputPath = _outputFolder,
+                Name = FileName,
+                UseExtra = _useExtra,
+                PackExtra = _packExtra,
+                ReplaceTransperent = _replaceTransparent
+            };
+
+            TextureMerger.SetLogger(Log);
+            await TextureMerger.PackAsync();
+        }
+        finally
+        {
+            _isBusy = false;
+            _cancellationTokenSource = null;
+        }
+    }
+
+    private void Log(string message)
+    {
+        _logText += $"{message}\n";
+        //StateHasChanged(); // Ensure UI updates with new log entry
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using TexMerge.Core;
+#if WINDOWS
 using TexMergeApp.Services;
+#endif
 
 
 namespace TexMergeApp;

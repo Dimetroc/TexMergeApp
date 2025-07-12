@@ -77,7 +77,7 @@ namespace TexMerge.Core.Services
 
         private bool TryGetCombiner(string name, string[] suffixes, SetFinder finder, out Combiner combiner)
         {
-            combiner = new Combiner(new string[] { }, string.Empty);
+            combiner = null;
             var found = false;
             for (int i = 0; i < suffixes.Length; i++)
             {
