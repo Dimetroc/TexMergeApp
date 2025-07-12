@@ -1,68 +1,159 @@
 ﻿@using MudBlazor
+@using Microsoft.Maui.Storage
+@using TexMergeApp.Services
+@inject IFolderPicker FolderPicker
 
 @page "/"
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
     <MudGrid>
         <!-- Left Column -->
-        <MudItem xs="12" md="5" lg="4">
+        <MudItem xs="6" md="5" lg="4">
             <MudPaper Class="pa-6" Elevation="2">
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.h5">Inputs</MudText>
 
-                    <MudStack Row="true" Spacing="2">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SelectInputFolder">
+                    <!-- Input folder group -->
+                    <MudStack Spacing="1">
+                        <MudTextField Label="Input folder"
+                                      Value="@_inputFolder"
+                                      ReadOnly="true"
+                                      Variant="Variant.Outlined" />
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   OnClick="SelectInputFolder">
                             Select Input Folder
                         </MudButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SelectOutputFolder">
+                    </MudStack>
+
+                    <!-- Output folder group -->
+                    <MudStack Spacing="1">
+                        <MudTextField Label="Output folder"
+                                      Value="@_outputFolder"
+                                      ReadOnly="true"
+                                      Variant="Variant.Outlined" />
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   OnClick="SelectOutputFolder">
                             Select Output Folder
                         </MudButton>
                     </MudStack>
 
-                    <MudTextField Label="File name" Variant="Variant.Outlined" @bind-Value="_fileName" />
-
-                    <MudSwitch Label="Use Extra" @bind-Value="_useExtra" />
-                    <MudSwitch Label="Pack Extra" @bind-Value="_packExtra" />
-                    <MudSwitch Label="Replace Transparent" @bind-Value="_replaceTransparent" />
+                    <MudTextField Label="File name" Variant="Variant.Outlined" @bind-Value="FileName" />
 
                     <MudDivider Class="my-2" />
 
                     <MudStack Row="true" Spacing="2">
-                        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="MergeTextures">
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Success"
+                                   OnClick="MergeTextures">
                             Merge Textures
                         </MudButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="PackExtra">
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Secondary"
+                                   OnClick="PackExtra">
                             Pack Extra
                         </MudButton>
                     </MudStack>
+
+
+                    <MudStack Row="true" Spacing="2" Class="my-2">
+                        <MudSwitch Label="Use Extra" @bind-Value="_useExtra" />
+                        <MudSwitch Label="Pack Extra" @bind-Value="_packExtra" />
+                        <MudSwitch Label="Replace Transparent" @bind-Value="_replaceTransparent" />
+                    </MudStack>
+
                 </MudStack>
             </MudPaper>
         </MudItem>
 
         <!-- Right Column -->
-        <MudItem xs="12" md="7" lg="8">
-            <MudPaper Class="pa-6" Elevation="2" Style="height:100%; overflow:auto;">
-                <MudText Typo="Typo.h5" Class="mb-2">Log</MudText>
-                <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">@_logText</MudText>
+
+        <MudItem xs="6" md="7" lg="8">
+          <MudPaper Class="pa-6 d-flex flex-column" Elevation="2" Style="height:400px">
+            <MudText Typo="Typo.h5" Class="mb-2">Log</MudText>
+            <MudPaper Class="pa-2" Elevation="0" Style="flex:1; overflow-y:auto;">
+              <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">
+                @_logText
+              </MudText>
             </MudPaper>
+          </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-    private string _fileName = "combined_texture";
     private bool _useExtra;
     private bool _packExtra;
     private bool _replaceTransparent;
+    private string _inputFolder;
+    private string _outputFolder;
     private string _logText = "Application started...\n";
 
-    private void SelectInputFolder()
+    private string _fileName = "Resullt_";
+    public string FileName
     {
-        _logText += "Select Input Folder clicked.\n";
+        get => _fileName;
+        set
+        {
+            if (_fileName == value) return;
+            _fileName = value;
+            Preferences.Set("LastFileName", value);
+        }
     }
 
-    private void SelectOutputFolder()
+    protected override void OnInitialized()
     {
-        _logText += "Select Output Folder clicked.\n";
+        // load last-used paths, or default to empty
+        _inputFolder  = Preferences.Get("LastInputFolder",  string.Empty);
+        _outputFolder = Preferences.Get("LastOutputFolder", string.Empty);
+        _fileName = Preferences.Get("LastFileName",  "Resullt");
+
+        if (string.IsNullOrWhiteSpace(_inputFolder))
+        {
+            _logText += "No input folder selected.\n";
+        }
+        else
+        {
+            _logText += $"Last input folder: {_inputFolder}\n";
+        }
+
+        if (string.IsNullOrWhiteSpace(_outputFolder))
+        {
+            _logText += "No output folder selected.\n";
+        }
+        else
+        {
+            _logText += $"Last output folder: {_outputFolder}\n";
+        }
+
+        for (int i = 0; i < 100; i++)
+        {
+            _logText += $"Log entry {i + 1}\n"; // Example log entries
+        }
+    }
+
+    private async Task SelectInputFolder()
+    {
+        var path = await FolderPicker.PickFolderAsync();
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            _inputFolder = path;
+            Preferences.Set("LastInputFolder", path);
+            _logText += $"Input folder: {path}\n";
+        }
+    }
+
+    private async Task SelectOutputFolder()
+    {
+        var path = await FolderPicker.PickFolderAsync();
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            _outputFolder = path;
+            Preferences.Set("LastOutputFolder", path);
+            _logText += $"Output folder: {path}\n";
+        }
     }
 
     private void MergeTextures()
