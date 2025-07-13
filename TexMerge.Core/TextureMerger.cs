@@ -32,26 +32,53 @@ namespace TexMerge.Core
         {
             await Task.Run(() =>
             {
+                var token = _data.CancellationTokenSource?.Token ?? CancellationToken.None;
+
                 _addLineToConsole("--------------------------------------------------------Start--------------------------------------------------------");
-                var setsCombiner = new SetsCombiner(_data, _addLineToConsole);
+
+                if (token.IsCancellationRequested)
+                {
+                    _addLineToConsole("Operation cancelled before start.");
+                    return;
+                }
+
+                var setsCombiner = new SetsCombiner(_data, _addLineToConsole, token);
                 setsCombiner.CombineSets();
+
+                if (token.IsCancellationRequested)
+                {
+                    _addLineToConsole("Operation cancelled after combine sets.");
+                    return;
+                }
 
                 if (_data.PackExtra)
                 {
-                    var packer = new TexturesPacker(_data, _addLineToConsole);
+                    var packer = new TexturesPacker(_data, _addLineToConsole, token);
                     packer.PackTextures();
                 }
+
                 _addLineToConsole("-------------------------------------------------------Finish-------------------------------------------------------");
             });
         }
+
 
         public async Task PackAsync()
         {
             await Task.Run(() =>
             {
+                var token = _data.CancellationTokenSource?.Token ?? CancellationToken.None;
+
                 _addLineToConsole("--------------------------------------------------------Start--------------------------------------------------------");
-                var packer = new TexturesPacker(_data, _addLineToConsole);
+
+                if (token.IsCancellationRequested)
+                {
+                    _addLineToConsole("Operation cancelled before start.");
+                    return;
+                }
+
+                var packer = new TexturesPacker(_data, _addLineToConsole, token);
                 packer.PackTextures();
+
                 _addLineToConsole("-------------------------------------------------------Finish-------------------------------------------------------");
             });
         }

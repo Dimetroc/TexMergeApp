@@ -15,5 +15,7 @@
 
         public string InputPath = string.Empty;
         public string OutputPath = string.Empty;
+
+        public CancellationTokenSource CancellationTokenSource;
     }
 }

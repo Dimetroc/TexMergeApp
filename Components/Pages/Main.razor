@@ -43,6 +43,11 @@
 
                     <MudDivider Class="my-2" />
 
+                    @if (_isBusy)
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
+                    }
+
                     <MudStack Row="true" Spacing="2">
                           <MudButton FullWidth="true"
                                Variant="Variant.Filled"
@@ -54,19 +59,31 @@
 
                             <MudButton FullWidth="true"
                                Variant="Variant.Filled"
-                               Color="Color.Secondary"
+                                   Color="Color.Success"
                                Disabled="@_isBusy"
                                OnClick="PackExtra">
                                 @(_isBusy ? "Working..." : "Pack Extra")
                             </MudButton>
+
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Secondary"
+                                   Disabled="@(!_isBusy)"
+                                   OnClick="StopCurrent">
+                                   Stop
+                        </MudButton>
                     </MudStack>
 
 
-                    <MudStack Row="true" Spacing="2" Class="my-2">
-                        <MudSwitch Label="Use Extra" @bind-Value="_useExtra" />
-                        <MudSwitch Label="Pack Extra" @bind-Value="_packExtra" />
-                        <MudSwitch Label="Replace Transparent" @bind-Value="_replaceTransparent" />
-                    </MudStack>
+                    <MudExpansionPanels Class="my-2">
+                        <MudExpansionPanel Text="Options">
+                            <MudStack Row="true" Spacing="2">
+                                <MudSwitch Label="Use Extra" @bind-Value="_useExtra" />
+                                <MudSwitch Label="Pack Extra" @bind-Value="_packExtra" />
+                                <MudSwitch Label="Replace Transparent" @bind-Value="_replaceTransparent" />
+                            </MudStack>
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
 
                 </MudStack>
             </MudPaper>
@@ -216,6 +233,17 @@
             _cancellationTokenSource = null;
         }
     }
+
+    private async Task StopCurrent()
+    {
+        if (_cancellationTokenSource != null)
+        {
+            _cancellationTokenSource.Cancel();
+            _logText += "-------------------------------------------------------Cancelled-----------------------------------------------------\n";
+            _isBusy = false;
+            _cancellationTokenSource = null;
+        }
+	}
 
     private void Log(string message)
     {
