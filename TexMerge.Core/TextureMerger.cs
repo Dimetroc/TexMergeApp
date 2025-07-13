@@ -20,7 +20,6 @@ namespace TexMerge.Core
         public TextureMerger(Action<string> consoleOutput)
         {
             _addLineToConsole = consoleOutput;
-            PrintBaseOptions();
         }
 
         public void SetLogger(Action<string> log)
@@ -81,48 +80,6 @@ namespace TexMerge.Core
 
                 _addLineToConsole("-------------------------------------------------------Finish-------------------------------------------------------");
             });
-        }
-
-        private void PrintBaseOptions()
-        {
-            _addLineToConsole("----------------------------------------------------Base maps:---------------------------------------------------");
-            PrintOptionSet("Base color", Constants.Color);
-            PrintOptionSet("Roughness", Constants.Roughness);
-            PrintOptionSet("Metallic", Constants.Metallic);
-            PrintOptionSet("Ambient Occlusion", Constants.Ao);
-            PrintOptionSet("Normal DirectX", Constants.NormalDX);
-            PrintOptionSet("Normal OpenGL", Constants.NormalOGL);
-            PrintOptionSet("Normal", Constants.Normal);
-            _addLineToConsole("");
-            _addLineToConsole("---------------------------------------------------Extra maps:---------------------------------------------------");
-            PrintOptionSet("Height", Constants.Height);
-            PrintOptionSet("Emissive", Constants.Emissive);
-            PrintOptionSet("Diffuse", Constants.Diffuse);
-            PrintOptionSet("Specular", Constants.Specular);
-            PrintOptionSet("Glossiness", Constants.Glossiness);
-            PrintOptionSet("Displacement", Constants.Displacement);
-            PrintOptionSet("Index Of Refraction", Constants.Refraction);
-            PrintOptionSet("Reflection", Constants.Reflection);
-            _addLineToConsole("----------------------------------------------------------------------------------------------------------------------");
-            _addLineToConsole("");
-
-        }
-
-        private void PrintOptionSet(string name, string[] options)
-        {
-            if (string.IsNullOrEmpty(name)) { return; }
-            if (options == null || options.Length == 0) { return; }
-
-            var str = new StringBuilder();
-            str.Append(name);
-            str.Append(": ");
-            foreach (var option in options)
-            {
-                str.Append(option);
-                str.Append(",");
-            }
-            _addLineToConsole(str.ToString());
-            str.Clear();
         }
     }
 }

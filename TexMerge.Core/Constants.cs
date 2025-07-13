@@ -1,6 +1,6 @@
 ﻿using ImageMagick;
 
-namespace TexMerge
+namespace TexMerge.Core
 {
     internal static class Constants
     {

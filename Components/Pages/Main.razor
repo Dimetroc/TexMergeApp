@@ -1,5 +1,6 @@
 ﻿@using MudBlazor
 @using Microsoft.Maui.Storage
+@using System.Text
 @using TexMergeApp.Services
 @using TexMerge.Core.Enums
 @using TexMerge.Core.Models
@@ -278,6 +279,7 @@
 
     protected override void OnInitialized()
     {
+        PrintBaseOptions();
         _inputFolder = Preferences.Get("LastInputFolder", string.Empty);
         _outputFolder = Preferences.Get("LastOutputFolder", string.Empty);
         _fileName = Preferences.Get("LastFileName", "Resullt");
@@ -371,6 +373,48 @@
             _isBusy = false;
             _cancellationTokenSource = null;
         }
+    }
+
+    private void PrintBaseOptions()
+    {
+        Log("----------------------------------------------------Base maps:---------------------------------------------------");
+        PrintOptionSet("Base color", Constants.Color);
+        PrintOptionSet("Roughness", Constants.Roughness);
+        PrintOptionSet("Metallic", Constants.Metallic);
+        PrintOptionSet("Ambient Occlusion", Constants.Ao);
+        PrintOptionSet("Normal DirectX", Constants.NormalDX);
+        PrintOptionSet("Normal OpenGL", Constants.NormalOGL);
+        PrintOptionSet("Normal", Constants.Normal);
+        Log("");
+        Log("---------------------------------------------------Extra maps:---------------------------------------------------");
+        PrintOptionSet("Height", Constants.Height);
+        PrintOptionSet("Emissive", Constants.Emissive);
+        PrintOptionSet("Diffuse", Constants.Diffuse);
+        PrintOptionSet("Specular", Constants.Specular);
+        PrintOptionSet("Glossiness", Constants.Glossiness);
+        PrintOptionSet("Displacement", Constants.Displacement);
+        PrintOptionSet("Index Of Refraction", Constants.Refraction);
+        PrintOptionSet("Reflection", Constants.Reflection);
+        Log("----------------------------------------------------------------------------------------------------------------------");
+        Log("");
+
+    }
+
+    private void PrintOptionSet(string name, string[] options)
+    {
+        if (string.IsNullOrEmpty(name)) { return; }
+        if (options == null || options.Length == 0) { return; }
+
+        var str = new StringBuilder();
+        str.Append(name);
+        str.Append(": ");
+        foreach (var option in options)
+        {
+            str.Append(option);
+            str.Append(",");
+        }
+        Log(str.ToString());
+        str.Clear();
     }
 
     private void Log(string message)

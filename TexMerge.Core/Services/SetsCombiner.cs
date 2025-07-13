@@ -1,5 +1,6 @@
 ﻿using ImageMagick;
 using TexMerge.Core.Models;
+using TexMerge.Core.Enums;
 
 namespace TexMerge.Core.Services
 {
@@ -55,42 +56,57 @@ namespace TexMerge.Core.Services
 
             if (_token.IsCancellationRequested) return;
 
-            _data.RoughnessMap = WriteSet("Roughness", Constants.Roughness, Constants.RoughnessColor, finder, combiner);
+            if (_data.BaseMaps.HasFlag(BaseMaps.Roughness))
+                _data.RoughnessMap = WriteSet("Roughness", Constants.Roughness, Constants.RoughnessColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
-            _data.MetalnessMap = WriteSet("Metallic", Constants.Metallic, Constants.MetalliColor, finder, combiner);
+            if (_data.BaseMaps.HasFlag(BaseMaps.Metallic))
+                _data.MetalnessMap = WriteSet("Metallic", Constants.Metallic, Constants.MetalliColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
-            _data.AoMap = WriteSet("Ambient Occlusion", Constants.Ao, Constants.AoColor, finder, combiner);
+            if (_data.BaseMaps.HasFlag(BaseMaps.AmbientOcclusion))
+                _data.AoMap = WriteSet("Ambient Occlusion", Constants.Ao, Constants.AoColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
 
-            WriteSet("Normal DirectX", Constants.NormalDX, Constants.NormalDXColor, finder, combiner);
+            if (_data.BaseMaps.HasFlag(BaseMaps.NormalDX))
+                WriteSet("Normal DirectX", Constants.NormalDX, Constants.NormalDXColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
-            WriteSet("Normal OpenGl", Constants.NormalOGL, Constants.NormalOGLColor, finder, combiner);
+            if (_data.BaseMaps.HasFlag(BaseMaps.NormalOGL))
+                WriteSet("Normal OpenGl", Constants.NormalOGL, Constants.NormalOGLColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
-            WriteSet("Normal", Constants.Normal, Constants.NormalColor, finder, combiner);
+            if (_data.BaseMaps.HasFlag(BaseMaps.Normal))
+                WriteSet("Normal", Constants.Normal, Constants.NormalColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
 
             if (_data.UseExtra)
             {
-                WriteSet("Height", Constants.Height, Constants.HeightColor, finder, combiner);
+                if (_data.ExtraMaps.HasFlag(ExtraMaps.Height))
+                    WriteSet("Height", Constants.Height, Constants.HeightColor, finder, combiner);
                 if (_token.IsCancellationRequested) return;
-                WriteSet("Emissive", Constants.Emissive, Constants.EmissiveColor, finder, combiner);
+                if (_data.ExtraMaps.HasFlag(ExtraMaps.Emissive))
+                    WriteSet("Emissive", Constants.Emissive, Constants.EmissiveColor, finder, combiner);
                 if (_token.IsCancellationRequested) return;
-                WriteSet("Diffuse", Constants.Diffuse, Constants.DiffusColor, finder, combiner);
+                if (_data.ExtraMaps.HasFlag(ExtraMaps.Diffuse))
+                    WriteSet("Diffuse", Constants.Diffuse, Constants.DiffusColor, finder, combiner);
                 if (_token.IsCancellationRequested) return;
-                WriteSet("Specular", Constants.Specular, Constants.SpecularColor, finder, combiner);
+                if (_data.ExtraMaps.HasFlag(ExtraMaps.Specular))
+                    WriteSet("Specular", Constants.Specular, Constants.SpecularColor, finder, combiner);
                 if (_token.IsCancellationRequested) return;
-                WriteSet("Glossiness", Constants.Glossiness, Constants.GlossinesColor, finder, combiner);
+                if (_data.ExtraMaps.HasFlag(ExtraMaps.Glossiness))
+                    WriteSet("Glossiness", Constants.Glossiness, Constants.GlossinesColor, finder, combiner);
                 if (_token.IsCancellationRequested) return;
-                WriteSet("Displacement", Constants.Displacement, Constants.DisplacementColor, finder, combiner);
+                if (_data.ExtraMaps.HasFlag(ExtraMaps.Displacement))
+                    WriteSet("Displacement", Constants.Displacement, Constants.DisplacementColor, finder, combiner);
                 if (_token.IsCancellationRequested) return;
-                WriteSet("Index Of Refraction", Constants.Refraction, Constants.RefractionColor, finder, combiner);
+                if (_data.ExtraMaps.HasFlag(ExtraMaps.Refraction))
+                    WriteSet("Index Of Refraction", Constants.Refraction, Constants.RefractionColor, finder, combiner);
                 if (_token.IsCancellationRequested) return;
-                WriteSet("Reflection", Constants.Reflection, Constants.ReflectionColor, finder, combiner);
+                if (_data.ExtraMaps.HasFlag(ExtraMaps.Reflection))
+                    WriteSet("Reflection", Constants.Reflection, Constants.ReflectionColor, finder, combiner);
                 if (_token.IsCancellationRequested) return;
             }
 
             var path = GetPath(combiner.Suffix);
             combiner.WriteColorMap(path);
+            _addLineToConsole("+ Color map added!");
             combiner.Dispose();
             if (_data.ReplaceTransperent)
             {
