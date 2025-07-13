@@ -10,6 +10,8 @@ namespace TexMerge.Core.Models
         public bool ReplaceTransperent => CombineFlags.HasFlag(CombineFlags.ReplaceTransparent);
 
         public CombineFlags CombineFlags = CombineFlags.None;
+        public BaseMaps BaseMaps = BaseMaps.All;
+        public ExtraMaps ExtraMaps = ExtraMaps.All;
 
         public string Name = "Result";
         public string PackName = string.Empty;

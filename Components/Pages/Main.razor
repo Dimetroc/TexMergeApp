@@ -51,40 +51,98 @@
                     }
 
                     <MudStack Row="true" Spacing="2">
-                          <MudButton FullWidth="true"
-                               Variant="Variant.Filled"
-                               Color="Color.Success"
-                               Disabled="@_isBusy"
-                               OnClick="MergeTextures">
-                                @(_isBusy ? "Working..." : "Merge Textures")
-                            </MudButton>
-
-                            <MudButton FullWidth="true"
-                               Variant="Variant.Filled"
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Filled"
                                    Color="Color.Success"
-                               Disabled="@_isBusy"
+                                   Disabled="@_isBusy"
+                                   OnClick="MergeTextures">
+                            @(_isBusy ? "Working..." : "Merge Textures")
+                        </MudButton>
+
+                        <MudButton FullWidth="true"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Success"
+                                   Disabled="@_isBusy"
                                    OnClick="PackTextures">
-                                @(_isBusy ? "Working..." : "Pack Extra")
-                            </MudButton>
+                            @(_isBusy ? "Working..." : "Pack Extra")
+                        </MudButton>
 
                         <MudButton FullWidth="true"
                                    Variant="Variant.Filled"
                                    Color="Color.Secondary"
                                    Disabled="@(!_isBusy)"
                                    OnClick="StopCurrent">
-                                   Stop
+                            Stop
                         </MudButton>
                     </MudStack>
 
-
                     <MudExpansionPanels Class="my-2">
                         <MudExpansionPanel Text="Options">
-                            <MudStack Row="true" Spacing="2">
-                                <MudSwitch Label="Use Extra" @bind-Value="UseExtra" />
-                                <MudSwitch Label="Pack Extra" @bind-Value="PackExtra" />
-                                <MudSwitch Label="Replace Transparent" @bind-Value="ReplaceTransperent" />
-                            </MudStack>
+                            <MudGrid GutterSize="2">
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Use Extra" @bind-Value="UseExtra" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Pack Extra" @bind-Value="PackExtra" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Replace Transparent" @bind-Value="ReplaceTransperent" Color="Color.Primary" />
+                                </MudItem>
+                            </MudGrid>
                         </MudExpansionPanel>
+
+                        <MudExpansionPanel Text="Base textures">
+                            <MudGrid GutterSize="2">
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Roughness" @bind-Value="BaseMap_Roughness" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Metallic" @bind-Value="BaseMap_Metallic" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="AmbientOcclusion" @bind-Value="BaseMap_AmbientOcclusion" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="NormalDX" @bind-Value="BaseMap_NormalDX" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="NormalOGL" @bind-Value="BaseMap_NormalOGL" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Normal" @bind-Value="BaseMap_Normal" Color="Color.Primary" />
+                                </MudItem>
+                            </MudGrid>
+                        </MudExpansionPanel>
+
+                        <MudExpansionPanel Text="Extra textures">
+                            <MudGrid GutterSize="2">
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Height" @bind-Value="ExtraMap_Height" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Emissive" @bind-Value="ExtraMap_Emissive" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Diffuse" @bind-Value="ExtraMap_Diffuse" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Specular" @bind-Value="ExtraMap_Specular" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Glossiness" @bind-Value="ExtraMap_Glossiness" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Displacement" @bind-Value="ExtraMap_Displacement" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Refraction" @bind-Value="ExtraMap_Refraction" Color="Color.Primary" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Reflection" @bind-Value="ExtraMap_Reflection" Color="Color.Primary" />
+                                </MudItem>
+                            </MudGrid>
+                        </MudExpansionPanel>
+
                     </MudExpansionPanels>
 
                 </MudStack>
@@ -94,31 +152,30 @@
         <!-- Right Column -->
 
         <MudItem xs="6" md="7" lg="8" Style="min-width: 500px; min-height: 900px; height:900px">
-          <MudPaper Class="pa-6 d-flex flex-column" Elevation="2" Style="height:900px">
-            <MudText Typo="Typo.h5" Class="mb-2">Log</MudText>
-            @if (_isBusy)
-            {
-                <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
-            }
-            <MudPaper Class="pa-2" Elevation="0" Style="flex:1; overflow-y:auto;">
-              <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">
-                @_logText
-              </MudText>
+            <MudPaper Class="pa-6 d-flex flex-column" Elevation="2" Style="height:900px">
+                <MudText Typo="Typo.h5" Class="mb-2">Log</MudText>
+                @if (_isBusy)
+                {
+                    <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
+                }
+                <MudPaper Class="pa-2" Elevation="0" Style="flex:1; overflow-y:auto;">
+                    <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">
+                        @_logText
+                    </MudText>
+                </MudPaper>
             </MudPaper>
-          </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
-
     public bool UseExtra
     {
         get => _combineFlags.HasFlag(CombineFlags.UseExtra);
-        set 
-        { 
-            _combineFlags = value ? _combineFlags | CombineFlags.UseExtra : _combineFlags & ~CombineFlags.UseExtra; 
-			Preferences.Set("LastCombineFlags", (int)_combineFlags);
+        set
+        {
+            _combineFlags = value ? _combineFlags | CombineFlags.UseExtra : _combineFlags & ~CombineFlags.UseExtra;
+            Preferences.Set("LastCombineFlags", (int)_combineFlags);
         }
     }
 
@@ -142,7 +199,64 @@
         }
     }
 
+    public bool BaseMap_Roughness
+    {
+        get => _baseMaps.HasFlag(BaseMaps.Roughness);
+        set => UpdateFlag(ref _baseMaps, BaseMaps.Roughness, value, "LastBaseMaps");
+    }
+
+    public bool BaseMap_Metallic
+    {
+        get => _baseMaps.HasFlag(BaseMaps.Metallic);
+        set => UpdateFlag(ref _baseMaps, BaseMaps.Metallic, value, "LastBaseMaps");
+    }
+
+    public bool BaseMap_AmbientOcclusion
+    {
+        get => _baseMaps.HasFlag(BaseMaps.AmbientOcclusion);
+        set => UpdateFlag(ref _baseMaps, BaseMaps.AmbientOcclusion, value, "LastBaseMaps");
+    }
+
+    public bool BaseMap_NormalDX
+    {
+        get => _baseMaps.HasFlag(BaseMaps.NormalDX);
+        set => UpdateFlag(ref _baseMaps, BaseMaps.NormalDX, value, "LastBaseMaps");
+    }
+
+    public bool BaseMap_NormalOGL
+    {
+        get => _baseMaps.HasFlag(BaseMaps.NormalOGL);
+        set => UpdateFlag(ref _baseMaps, BaseMaps.NormalOGL, value, "LastBaseMaps");
+    }
+
+    public bool BaseMap_Normal
+    {
+        get => _baseMaps.HasFlag(BaseMaps.Normal);
+        set => UpdateFlag(ref _baseMaps, BaseMaps.Normal, value, "LastBaseMaps");
+    }
+
+    public bool ExtraMap_Height { get => _extraMaps.HasFlag(ExtraMaps.Height); set => UpdateFlag(ref _extraMaps, ExtraMaps.Height, value, "LastExtraMaps"); }
+    public bool ExtraMap_Emissive { get => _extraMaps.HasFlag(ExtraMaps.Emissive); set => UpdateFlag(ref _extraMaps, ExtraMaps.Emissive, value, "LastExtraMaps"); }
+    public bool ExtraMap_Diffuse { get => _extraMaps.HasFlag(ExtraMaps.Diffuse); set => UpdateFlag(ref _extraMaps, ExtraMaps.Diffuse, value, "LastExtraMaps"); }
+    public bool ExtraMap_Specular { get => _extraMaps.HasFlag(ExtraMaps.Specular); set => UpdateFlag(ref _extraMaps, ExtraMaps.Specular, value, "LastExtraMaps"); }
+    public bool ExtraMap_Glossiness { get => _extraMaps.HasFlag(ExtraMaps.Glossiness); set => UpdateFlag(ref _extraMaps, ExtraMaps.Glossiness, value, "LastExtraMaps"); }
+    public bool ExtraMap_Displacement { get => _extraMaps.HasFlag(ExtraMaps.Displacement); set => UpdateFlag(ref _extraMaps, ExtraMaps.Displacement, value, "LastExtraMaps"); }
+    public bool ExtraMap_Refraction { get => _extraMaps.HasFlag(ExtraMaps.Refraction); set => UpdateFlag(ref _extraMaps, ExtraMaps.Refraction, value, "LastExtraMaps"); }
+    public bool ExtraMap_Reflection { get => _extraMaps.HasFlag(ExtraMaps.Reflection); set => UpdateFlag(ref _extraMaps, ExtraMaps.Reflection, value, "LastExtraMaps"); }
+
+    private void UpdateFlag<T>(ref T flags, T value, bool enabled, string preferenceKey) where T : Enum
+    {
+        if (enabled)
+            flags = (T)(object)(((int)(object)flags) | ((int)(object)value));
+        else
+            flags = (T)(object)(((int)(object)flags) & ~((int)(object)value));
+
+        Preferences.Set(preferenceKey, (int)(object)flags);
+    }
+
     private CombineFlags _combineFlags = CombineFlags.None;
+    private BaseMaps _baseMaps = BaseMaps.All;
+    private ExtraMaps _extraMaps = ExtraMaps.All;
 
     private string _inputFolder;
     private string _outputFolder;
@@ -164,29 +278,12 @@
 
     protected override void OnInitialized()
     {
-        // load last-used paths, or default to empty
-        _inputFolder  = Preferences.Get("LastInputFolder",  string.Empty);
+        _inputFolder = Preferences.Get("LastInputFolder", string.Empty);
         _outputFolder = Preferences.Get("LastOutputFolder", string.Empty);
-        _fileName = Preferences.Get("LastFileName",  "Resullt");
+        _fileName = Preferences.Get("LastFileName", "Resullt");
         _combineFlags = (CombineFlags)Preferences.Get("LastCombineFlags", (int)CombineFlags.None);
-
-        if (string.IsNullOrWhiteSpace(_inputFolder))
-        {
-            _logText += "No input folder selected.\n";
-        }
-        else
-        {
-            _logText += $"Last input folder: {_inputFolder}\n";
-        }
-
-        if (string.IsNullOrWhiteSpace(_outputFolder))
-        {
-            _logText += "No output folder selected.\n";
-        }
-        else
-        {
-            _logText += $"Last output folder: {_outputFolder}\n";
-        }
+        _baseMaps = (BaseMaps)Preferences.Get("LastBaseMaps", (int)BaseMaps.All);
+        _extraMaps = (ExtraMaps)Preferences.Get("LastExtraMaps", (int)ExtraMaps.All);
     }
 
     private async Task SelectInputFolder()
@@ -238,7 +335,7 @@
 
         try
         {
-			TextureMerger.Options = GetCombineOptions();
+            TextureMerger.Options = GetCombineOptions();
             TextureMerger.SetLogger(Log);
             await TextureMerger.PackAsync();
         }
@@ -251,12 +348,17 @@
 
     private CombineOptions GetCombineOptions()
     {
+        Preferences.Set("LastBaseMaps", (int)_baseMaps);
+        Preferences.Set("LastExtraMaps", (int)_extraMaps);
+
         return new CombineOptions
         {
             InputPath = _inputFolder,
             OutputPath = _outputFolder,
             Name = FileName,
             CombineFlags = _combineFlags,
+            BaseMaps = _baseMaps,
+            ExtraMaps = _extraMaps,
         };
     }
 
@@ -269,11 +371,10 @@
             _isBusy = false;
             _cancellationTokenSource = null;
         }
-	}
+    }
 
     private void Log(string message)
     {
         _logText += $"{message}\n";
-        //StateHasChanged(); // Ensure UI updates with new log entry
     }
 }
