@@ -1,10 +1,15 @@
-﻿namespace TexMerge.Core.Models
+﻿using TexMerge.Core.Enums;
+
+namespace TexMerge.Core.Models
 {
     public class CombineOptions
     {
-        public bool UseExtra = false;
-        public bool PackExtra = false;
-        public bool ReplaceTransperent = true;
+
+        public bool UseExtra => CombineFlags.HasFlag(CombineFlags.UseExtra);
+        public bool PackExtra => CombineFlags.HasFlag(CombineFlags.PackExtra);
+        public bool ReplaceTransperent => CombineFlags.HasFlag(CombineFlags.ReplaceTransparent);
+
+        public CombineFlags CombineFlags = CombineFlags.None;
 
         public string Name = "Result";
         public string PackName = string.Empty;

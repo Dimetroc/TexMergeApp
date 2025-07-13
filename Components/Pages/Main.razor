@@ -1,6 +1,8 @@
 ﻿@using MudBlazor
 @using Microsoft.Maui.Storage
 @using TexMergeApp.Services
+@using TexMerge.Core.Enums
+@using TexMerge.Core.Models
 @inject IFolderPicker FolderPicker
 @inject ITextureMerger TextureMerger
 
@@ -61,7 +63,7 @@
                                Variant="Variant.Filled"
                                    Color="Color.Success"
                                Disabled="@_isBusy"
-                               OnClick="PackExtra">
+                                   OnClick="PackTextures">
                                 @(_isBusy ? "Working..." : "Pack Extra")
                             </MudButton>
 
@@ -78,9 +80,9 @@
                     <MudExpansionPanels Class="my-2">
                         <MudExpansionPanel Text="Options">
                             <MudStack Row="true" Spacing="2">
-                                <MudSwitch Label="Use Extra" @bind-Value="_useExtra" />
-                                <MudSwitch Label="Pack Extra" @bind-Value="_packExtra" />
-                                <MudSwitch Label="Replace Transparent" @bind-Value="_replaceTransparent" />
+                                <MudSwitch Label="Use Extra" @bind-Value="UseExtra" />
+                                <MudSwitch Label="Pack Extra" @bind-Value="PackExtra" />
+                                <MudSwitch Label="Replace Transparent" @bind-Value="ReplaceTransperent" />
                             </MudStack>
                         </MudExpansionPanel>
                     </MudExpansionPanels>
@@ -109,9 +111,39 @@
 </MudContainer>
 
 @code {
-    private bool _useExtra;
-    private bool _packExtra;
-    private bool _replaceTransparent;
+
+    public bool UseExtra
+    {
+        get => _combineFlags.HasFlag(CombineFlags.UseExtra);
+        set 
+        { 
+            _combineFlags = value ? _combineFlags | CombineFlags.UseExtra : _combineFlags & ~CombineFlags.UseExtra; 
+			Preferences.Set("LastCombineFlags", (int)_combineFlags);
+        }
+    }
+
+    public bool PackExtra
+    {
+        get => _combineFlags.HasFlag(CombineFlags.PackExtra);
+        set
+        {
+            _combineFlags = value ? _combineFlags | CombineFlags.PackExtra : _combineFlags & ~CombineFlags.PackExtra;
+            Preferences.Set("LastCombineFlags", (int)_combineFlags);
+        }
+    }
+
+    public bool ReplaceTransperent
+    {
+        get => _combineFlags.HasFlag(CombineFlags.ReplaceTransparent);
+        set
+        {
+            _combineFlags = value ? _combineFlags | CombineFlags.ReplaceTransparent : _combineFlags & ~CombineFlags.ReplaceTransparent;
+            Preferences.Set("LastCombineFlags", (int)_combineFlags);
+        }
+    }
+
+    private CombineFlags _combineFlags = CombineFlags.None;
+
     private string _inputFolder;
     private string _outputFolder;
     private string _logText = "Application started...\n";
@@ -136,6 +168,7 @@
         _inputFolder  = Preferences.Get("LastInputFolder",  string.Empty);
         _outputFolder = Preferences.Get("LastOutputFolder", string.Empty);
         _fileName = Preferences.Get("LastFileName",  "Resullt");
+        _combineFlags = (CombineFlags)Preferences.Get("LastCombineFlags", (int)CombineFlags.None);
 
         if (string.IsNullOrWhiteSpace(_inputFolder))
         {
@@ -186,16 +219,7 @@
 
         try
         {
-            TextureMerger.Options = new TexMerge.Core.Models.CombineOptions
-            {
-                InputPath = _inputFolder,
-                OutputPath = _outputFolder,
-                Name = FileName,
-                UseExtra = _useExtra,
-                PackExtra = _packExtra,
-                ReplaceTransperent = _replaceTransparent
-            };
-
+            TextureMerger.Options = GetCombineOptions();
             TextureMerger.SetLogger(Log);
             await TextureMerger.CombineAsync();
         }
@@ -206,7 +230,7 @@
         }
     }
 
-    private async Task PackExtra()
+    private async Task PackTextures()
     {
         if (_isBusy) return;
         _isBusy = true;
@@ -214,16 +238,7 @@
 
         try
         {
-            TextureMerger.Options = new TexMerge.Core.Models.CombineOptions
-            {
-                InputPath = _inputFolder,
-                OutputPath = _outputFolder,
-                Name = FileName,
-                UseExtra = _useExtra,
-                PackExtra = _packExtra,
-                ReplaceTransperent = _replaceTransparent
-            };
-
+			TextureMerger.Options = GetCombineOptions();
             TextureMerger.SetLogger(Log);
             await TextureMerger.PackAsync();
         }
@@ -234,7 +249,18 @@
         }
     }
 
-    private async Task StopCurrent()
+    private CombineOptions GetCombineOptions()
+    {
+        return new CombineOptions
+        {
+            InputPath = _inputFolder,
+            OutputPath = _outputFolder,
+            Name = FileName,
+            CombineFlags = _combineFlags,
+        };
+    }
+
+    private void StopCurrent()
     {
         if (_cancellationTokenSource != null)
         {
