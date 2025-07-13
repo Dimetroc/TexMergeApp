@@ -1,5 +1,6 @@
 ﻿using ImageMagick;
 using TexMerge.Core.Enums;
+using TexMerge.Core.Models;
 
 namespace TexMerge.Core.Services
 {
@@ -10,11 +11,13 @@ namespace TexMerge.Core.Services
         private uint _baseWidth;
         private uint _baseHeight;
         private uint _baseDepth;
+        private readonly bool _jpgSave;
 
-        public Combiner(string[] baseColor, string suffix)
+        public Combiner(string[] baseColor, string suffix, bool jpgSave)
         {
             Suffix = suffix;
             _baseColor = baseColor;
+            _jpgSave = jpgSave;
             SetBaseData();
         }
 
@@ -45,19 +48,21 @@ namespace TexMerge.Core.Services
 
             using (var resultImage = new MagickImage("xc:none", settings))
             {
-
                 for (var i = 0; i < files.Length; i++)
                 {
                     using (var baseMap = new MagickImage(_baseColor[i]))
+                    using (var target = new MagickImage(files[i]))
                     {
-
-                        using (var target = new MagickImage(files[i]))
-                        {
-                            target.Composite(baseMap, CompositeOperator.CopyAlpha);
-
-                            resultImage.Composite(target, CompositeOperator.SrcOver);
-                        }
+                        target.Composite(baseMap, CompositeOperator.CopyAlpha);
+                        resultImage.Composite(target, CompositeOperator.SrcOver);
                     }
+                }
+
+                if (_jpgSave)
+                {
+                    resultImage.Format = MagickFormat.Jpeg;
+                    resultImage.Alpha(AlphaOption.Remove);
+                    resultImage.Quality = 90;
                 }
 
                 resultImage.Write(path);
@@ -77,14 +82,19 @@ namespace TexMerge.Core.Services
 
             using (var resultImage = new MagickImage("xc:none", settings))
             {
-
                 for (var i = 0; i < _baseColor.Length; i++)
                 {
                     using (var baseMap = new MagickImage(_baseColor[i]))
                     {
-
                         resultImage.Composite(baseMap, CompositeOperator.SrcOver);
                     }
+                }
+
+                if (_jpgSave)
+                {
+                    resultImage.Format = MagickFormat.Jpeg;
+                    resultImage.Alpha(AlphaOption.Remove);
+                    resultImage.Quality = 90;
                 }
 
                 resultImage.Write(path);
@@ -113,7 +123,6 @@ namespace TexMerge.Core.Services
 
         private void SetBaseData()
         {
-
             using (var first = new MagickImage(_baseColor[0]))
             {
                 _baseWidth = first.Width;
@@ -123,5 +132,3 @@ namespace TexMerge.Core.Services
         }
     }
 }
-
-

@@ -57,13 +57,13 @@ namespace TexMerge.Core.Services
             if (_token.IsCancellationRequested) return;
 
             if (_data.BaseMaps.HasFlag(BaseMaps.Roughness))
-                _data.RoughnessMap = WriteSet("Roughness", Constants.Roughness, Constants.RoughnessColor, finder, combiner);
+                WriteSet("Roughness", Constants.Roughness, Constants.RoughnessColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
             if (_data.BaseMaps.HasFlag(BaseMaps.Metallic))
-                _data.MetalnessMap = WriteSet("Metallic", Constants.Metallic, Constants.MetalliColor, finder, combiner);
+                WriteSet("Metallic", Constants.Metallic, Constants.MetalliColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
             if (_data.BaseMaps.HasFlag(BaseMaps.AmbientOcclusion))
-                _data.AoMap = WriteSet("Ambient Occlusion", Constants.Ao, Constants.AoColor, finder, combiner);
+                WriteSet("Ambient Occlusion", Constants.Ao, Constants.AoColor, finder, combiner);
             if (_token.IsCancellationRequested) return;
 
             if (_data.BaseMaps.HasFlag(BaseMaps.NormalDX))
@@ -106,7 +106,6 @@ namespace TexMerge.Core.Services
 
             var path = GetPath(combiner.Suffix);
             combiner.WriteColorMap(path);
-            _addLineToConsole("+ Color map added!");
             combiner.Dispose();
             if (_data.ReplaceTransperent)
             {
@@ -124,7 +123,7 @@ namespace TexMerge.Core.Services
                 return false;
             }
 
-            combiner = new Combiner(finder.Files, finder.Suffix);
+            combiner = new Combiner(finder.Files, finder.Suffix, _data.JpgSave);
             return true;
         }
 
@@ -161,11 +160,15 @@ namespace TexMerge.Core.Services
 
         private string GetPath(string suffix)
         {
-            return _data.OutputPath + "/" + _data.Name + suffix + ".png";
+            var ext = _data.JpgSave ? ".jpg" : ".png";
+            return _data.OutputPath + "/" + _data.Name + suffix + ext;
         }
 
         private void ReplaceTransperentPixels(string path, MagickColor replacementColor)
         {
+            if (Path.GetExtension(path).Equals(".jpg", StringComparison.OrdinalIgnoreCase))
+                return; // JPEG has no alpha support
+
             using var image = new MagickImage(path);
             image.ColorAlpha(replacementColor);
             image.Write(path);

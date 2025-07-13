@@ -20,31 +20,103 @@ namespace TexMerge.Core.Services
         {
             if (_token.IsCancellationRequested) return;
 
-            if (string.IsNullOrEmpty(_data.RoughnessMap) || !File.Exists(_data.RoughnessMap))
+            if (!Directory.Exists(_data.OutputPath))
             {
-                _addLineToConsole("- Roughness map missing, can't combine maps! " + _data.RoughnessMap);
+                _addLineToConsole("Pack folder does not exists!");
+                _addLineToConsole("-------------------------------------------------------Finish-------------------------------------------------------");
+                return;
+            }
+
+            var aoMap = string.Empty;
+            var roughnessMap = string.Empty;
+            var metallicMap = string.Empty;
+
+            roughnessMap = FindFileBySuffixes(_data.InputPath, Constants.Roughness, _data.JpgSave);
+            if (string.IsNullOrEmpty(roughnessMap) || !File.Exists(roughnessMap))
+            {
+                _addLineToConsole("- Roughness map missing, can't combine maps! " + roughnessMap);
                 return;
             }
             if (_token.IsCancellationRequested) return;
 
-            if (string.IsNullOrEmpty(_data.MetalnessMap) || !File.Exists(_data.MetalnessMap))
+            metallicMap = FindFileBySuffixes(_data.InputPath, Constants.Metallic, _data.JpgSave);
+            if (string.IsNullOrEmpty(metallicMap) || !File.Exists(metallicMap))
             {
-                _addLineToConsole("- Metalness map missing, can't combine maps! " + _data.MetalnessMap);
+                _addLineToConsole("- Metallic map missing, can't combine maps! " + metallicMap);
                 return;
             }
             if (_token.IsCancellationRequested) return;
 
-            if (string.IsNullOrEmpty(_data.AoMap) || !File.Exists(_data.AoMap))
+            aoMap = FindFileBySuffixes(_data.InputPath, Constants.Ao, _data.JpgSave);
+            if (string.IsNullOrEmpty(aoMap) || !File.Exists(aoMap))
             {
-                _addLineToConsole("- Ambient occlusion map missing, can't combine maps! " + _data.AoMap);
+                _addLineToConsole("- Ambient occlusion map missing, can't combine maps! " + aoMap);
                 return;
             }
 
             if (_token.IsCancellationRequested) return;
 
+            
+            using var redImageSource = new MagickImage(aoMap);
+            var redImage = redImageSource.Separate(Channels.Red).First();
+            if (_token.IsCancellationRequested) return;
+
+            using var greenImageSource = new MagickImage(roughnessMap);
+            var greenImage = greenImageSource.Separate(Channels.Red).First();
+            if (_token.IsCancellationRequested) return;
+
+            using var blueImageSource = new MagickImage(metallicMap);
+            var blueImage = blueImageSource.Separate(Channels.Red).First();
+            if (_token.IsCancellationRequested) return;
+
+            if (redImage.Width == greenImage.Width && redImage.Height == greenImage.Height &&
+                redImage.Width == blueImage.Width && redImage.Height == blueImage.Height)
+            {
+                using var images = new MagickImageCollection { redImage, greenImage, blueImage };
+
+
+   
+                if (_token.IsCancellationRequested) return;
+
+                using var image = new MagickImage(images.Combine());
+                if (_token.IsCancellationRequested) return;
+
+                var path = GetOutputPath(roughnessMap);
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                if (_token.IsCancellationRequested) return;
+
+                if (_data.JpgSave)
+                {
+                    image.Format = MagickFormat.Jpeg;
+                    image.Alpha(AlphaOption.Remove);
+                    image.Quality = 90;
+                }
+
+                image.Write(path);
+
+                _addLineToConsole($"+ {GetName(roughnessMap)}{Constants.AoRM}{(_data.JpgSave ? ".jpg" : ".png")} map is packed!");
+            }
+            else
+            {
+                _addLineToConsole("- Sizes do not match, can't pack maps! ");
+            }
+        }
+
+        private string GetOutputPath(string roughnessMap)
+        {
+            var fileName = GetName(roughnessMap);
+            var extension = _data.JpgSave ? ".jpg" : ".png";
+            return Path.Combine(_data.OutputPath, fileName + Constants.AoRM + extension);
+        }
+
+        private string GetName(string roughnessMap)
+        {
             if (string.IsNullOrEmpty(_data.Name))
             {
-                var fileName = Path.GetFileNameWithoutExtension(_data.RoughnessMap);
+                var fileName = Path.GetFileNameWithoutExtension(roughnessMap);
                 foreach (var end in Constants.Roughness)
                 {
                     if (fileName.EndsWith(end))
@@ -53,47 +125,32 @@ namespace TexMerge.Core.Services
                         break;
                     }
                 }
-                _data.PackName = fileName;
+                return fileName;
             }
             else
             {
-                _data.PackName = _data.Name;
+                return _data.Name;
             }
+        }
 
-            using var redImage = new MagickImage(_data.AoMap);
-            if (_token.IsCancellationRequested) return;
+        private string? FindFileBySuffixes(string folderPath, string[] suffixes, bool jpgSave)
+        {
+            if (!Directory.Exists(folderPath) || suffixes == null || suffixes.Length == 0)
+                return null;
 
-            using var greenImage = new MagickImage(_data.RoughnessMap);
-            if (_token.IsCancellationRequested) return;
+            var extension = jpgSave ? ".jpg" : ".png";
+            var files = Directory.GetFiles(folderPath, "*" + extension, SearchOption.TopDirectoryOnly);
 
-            using var blueImage = new MagickImage(_data.MetalnessMap);
-            if (_token.IsCancellationRequested) return;
+            var result = files.FirstOrDefault(file =>
+                suffixes.Any(suffix => Path.GetFileNameWithoutExtension(file).EndsWith(suffix, StringComparison.OrdinalIgnoreCase)));
 
-            if (redImage.Width == greenImage.Width && redImage.Height == greenImage.Height &&
-                redImage.Width == blueImage.Width && redImage.Height == blueImage.Height)
-            {
-                using var images = new MagickImageCollection();
-                images.Add(redImage);
-                if (_token.IsCancellationRequested) return;
+            if (!string.IsNullOrEmpty(result)) return result;
 
-                images.Add(greenImage);
-                if (_token.IsCancellationRequested) return;
+            extension = jpgSave ? ".png" : ".jpg";
+            files = Directory.GetFiles(folderPath, "*" + extension, SearchOption.TopDirectoryOnly);
 
-                images.Add(blueImage);
-                if (_token.IsCancellationRequested) return;
-
-                using var image = new MagickImage(images.Combine());
-                if (_token.IsCancellationRequested) return;
-
-                var path = Path.Combine(_data.OutputPath, _data.PackName + Constants.AoRM + ".png");
-                if (File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-                if (_token.IsCancellationRequested) return;
-
-                image.Write(path);
-            }
+            return files.FirstOrDefault(file =>
+                suffixes.Any(suffix => Path.GetFileNameWithoutExtension(file).EndsWith(suffix, StringComparison.OrdinalIgnoreCase)));
         }
     }
 }

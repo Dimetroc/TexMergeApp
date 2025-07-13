@@ -18,7 +18,7 @@
 
                     <!-- Input folder group -->
                     <MudStack Spacing="1">
-                        <MudTextField Label="Input folder"
+                        <MudTextField Label="Input Folder"
                                       Value="@_inputFolder"
                                       ReadOnly="true"
                                       Variant="Variant.Outlined" />
@@ -31,7 +31,7 @@
 
                     <!-- Output folder group -->
                     <MudStack Spacing="1">
-                        <MudTextField Label="Output folder"
+                        <MudTextField Label="Output Folder"
                                       Value="@_outputFolder"
                                       ReadOnly="true"
                                       Variant="Variant.Outlined" />
@@ -87,7 +87,10 @@
                                     <MudSwitch Label="Pack Extra" @bind-Value="PackExtra" Color="Color.Primary" />
                                 </MudItem>
                                 <MudItem xs="4">
-                                    <MudSwitch Label="Replace Transparent" @bind-Value="ReplaceTransperent" Color="Color.Primary" />
+                                    <MudSwitch Label="Fill Transparent" @bind-Value="ReplaceTransperent" Color="Color.Primary" Disabled="@JpgSave" />
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSwitch Label="Save as Jpg" @bind-Value="JpgSave" Color="Color.Primary" />
                                 </MudItem>
                             </MudGrid>
                         </MudExpansionPanel>
@@ -101,13 +104,13 @@
                                     <MudSwitch Label="Metallic" @bind-Value="BaseMap_Metallic" Color="Color.Primary" />
                                 </MudItem>
                                 <MudItem xs="4">
-                                    <MudSwitch Label="AmbientOcclusion" @bind-Value="BaseMap_AmbientOcclusion" Color="Color.Primary" />
+                                    <MudSwitch Label="Ambient Occlusion" @bind-Value="BaseMap_AmbientOcclusion" Color="Color.Primary" />
                                 </MudItem>
                                 <MudItem xs="4">
-                                    <MudSwitch Label="NormalDX" @bind-Value="BaseMap_NormalDX" Color="Color.Primary" />
+                                    <MudSwitch Label="Normal DirectX" @bind-Value="BaseMap_NormalDX" Color="Color.Primary" />
                                 </MudItem>
                                 <MudItem xs="4">
-                                    <MudSwitch Label="NormalOGL" @bind-Value="BaseMap_NormalOGL" Color="Color.Primary" />
+                                    <MudSwitch Label="Normal OpenGL" @bind-Value="BaseMap_NormalOGL" Color="Color.Primary" />
                                 </MudItem>
                                 <MudItem xs="4">
                                     <MudSwitch Label="Normal" @bind-Value="BaseMap_Normal" Color="Color.Primary" />
@@ -192,10 +195,29 @@
 
     public bool ReplaceTransperent
     {
-        get => _combineFlags.HasFlag(CombineFlags.ReplaceTransparent);
+        get => _combineFlags.HasFlag(CombineFlags.ReplaceTransparent) || _combineFlags.HasFlag(CombineFlags.JpgSave);
         set
         {
+            if(!value && _combineFlags.HasFlag(CombineFlags.JpgSave))
+            {
+                // If JpgSave is enabled, we cannot disable ReplaceTransparent
+                return;
+			}
             _combineFlags = value ? _combineFlags | CombineFlags.ReplaceTransparent : _combineFlags & ~CombineFlags.ReplaceTransparent;
+            Preferences.Set("LastCombineFlags", (int)_combineFlags);
+        }
+    }
+
+    public bool JpgSave
+    {
+        get => _combineFlags.HasFlag(CombineFlags.JpgSave);
+        set
+        {
+            if (value && !_combineFlags.HasFlag(CombineFlags.ReplaceTransparent))
+            {
+                _combineFlags = value ? _combineFlags | CombineFlags.ReplaceTransparent : _combineFlags & ~CombineFlags.ReplaceTransparent;
+			}
+            _combineFlags = value ? _combineFlags | CombineFlags.JpgSave : _combineFlags & ~CombineFlags.JpgSave;
             Preferences.Set("LastCombineFlags", (int)_combineFlags);
         }
     }
