@@ -27,11 +27,15 @@ namespace TexMerge.Core.Services
                 return;
             }
 
-            var aoMap = string.Empty;
-            var roughnessMap = string.Empty;
-            var metallicMap = string.Empty;
+            var aoMap = FindFileBySuffixes(_data.OutputPath, Constants.Ao, _data.JpgSave);
+            if (_token.IsCancellationRequested) return;
 
-            roughnessMap = FindFileBySuffixes(_data.InputPath, Constants.Roughness, _data.JpgSave);
+            var roughnessMap = FindFileBySuffixes(_data.OutputPath, Constants.Roughness, _data.JpgSave);
+            if (_token.IsCancellationRequested) return;
+
+            var metallicMap = FindFileBySuffixes(_data.OutputPath, Constants.Metallic, _data.JpgSave);
+            if (_token.IsCancellationRequested) return;
+
             if (string.IsNullOrEmpty(roughnessMap) || !File.Exists(roughnessMap))
             {
                 _addLineToConsole("- Roughness map missing, can't combine maps! " + roughnessMap);
@@ -39,7 +43,6 @@ namespace TexMerge.Core.Services
             }
             if (_token.IsCancellationRequested) return;
 
-            metallicMap = FindFileBySuffixes(_data.InputPath, Constants.Metallic, _data.JpgSave);
             if (string.IsNullOrEmpty(metallicMap) || !File.Exists(metallicMap))
             {
                 _addLineToConsole("- Metallic map missing, can't combine maps! " + metallicMap);
@@ -47,62 +50,64 @@ namespace TexMerge.Core.Services
             }
             if (_token.IsCancellationRequested) return;
 
-            aoMap = FindFileBySuffixes(_data.InputPath, Constants.Ao, _data.JpgSave);
             if (string.IsNullOrEmpty(aoMap) || !File.Exists(aoMap))
             {
                 _addLineToConsole("- Ambient occlusion map missing, can't combine maps! " + aoMap);
                 return;
             }
-
             if (_token.IsCancellationRequested) return;
 
-            
             using var redImageSource = new MagickImage(aoMap);
-            var redImage = redImageSource.Separate(Channels.Red).First();
-            if (_token.IsCancellationRequested) return;
-
             using var greenImageSource = new MagickImage(roughnessMap);
-            var greenImage = greenImageSource.Separate(Channels.Red).First();
-            if (_token.IsCancellationRequested) return;
-
             using var blueImageSource = new MagickImage(metallicMap);
-            var blueImage = blueImageSource.Separate(Channels.Red).First();
             if (_token.IsCancellationRequested) return;
 
-            if (redImage.Width == greenImage.Width && redImage.Height == greenImage.Height &&
-                redImage.Width == blueImage.Width && redImage.Height == blueImage.Height)
-            {
-                using var images = new MagickImageCollection { redImage, greenImage, blueImage };
+            redImageSource.Alpha(AlphaOption.Remove);
+            greenImageSource.Alpha(AlphaOption.Remove);
+            blueImageSource.Alpha(AlphaOption.Remove);
+            if (_token.IsCancellationRequested) return;
 
+            var width = redImageSource.Width;
+            var height = redImageSource.Height;
 
-   
-                if (_token.IsCancellationRequested) return;
-
-                using var image = new MagickImage(images.Combine());
-                if (_token.IsCancellationRequested) return;
-
-                var path = GetOutputPath(roughnessMap);
-                if (File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-                if (_token.IsCancellationRequested) return;
-
-                if (_data.JpgSave)
-                {
-                    image.Format = MagickFormat.Jpeg;
-                    image.Alpha(AlphaOption.Remove);
-                    image.Quality = 90;
-                }
-
-                image.Write(path);
-
-                _addLineToConsole($"+ {GetName(roughnessMap)}{Constants.AoRM}{(_data.JpgSave ? ".jpg" : ".png")} map is packed!");
-            }
-            else
+            if (greenImageSource.Width != width || greenImageSource.Height != height ||
+                blueImageSource.Width != width || blueImageSource.Height != height)
             {
                 _addLineToConsole("- Sizes do not match, can't pack maps! ");
+                return;
             }
+
+            var redChannel = redImageSource.Separate(Channels.Red).First();
+            if (_token.IsCancellationRequested) return;
+            var greenChannel = greenImageSource.Separate(Channels.Red).First();
+            if (_token.IsCancellationRequested) return;
+            var blueChannel = blueImageSource.Separate(Channels.Red).First();
+            if (_token.IsCancellationRequested) return;
+
+            using var resultImage = new MagickImage(MagickColors.Black, width, height);
+            resultImage.Composite(redChannel, CompositeOperator.CopyRed);
+            if (_token.IsCancellationRequested) return;
+            resultImage.Composite(greenChannel, CompositeOperator.CopyGreen);
+            if (_token.IsCancellationRequested) return;
+            resultImage.Composite(blueChannel, CompositeOperator.CopyBlue);
+            if (_token.IsCancellationRequested) return;
+
+            var path = GetOutputPath(roughnessMap);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            if (_token.IsCancellationRequested) return;
+
+            if (_data.JpgSave)
+            {
+                resultImage.Format = MagickFormat.Jpeg;
+                resultImage.Quality = 90;
+                resultImage.Alpha(AlphaOption.Remove);
+            }
+
+            resultImage.Write(path);
+            _addLineToConsole($"+ {GetName(roughnessMap)}{Constants.AoRM}{(_data.JpgSave ? ".jpg" : ".png")} map is packed!");
         }
 
         private string GetOutputPath(string roughnessMap)
