@@ -9,167 +9,160 @@
 
 @page "/"
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
-    <MudGrid>
+    <MudStack Row="true" Spacing="4" Style="align-items: flex-start;">
         <!-- Left Column -->
-        <MudItem xs="6" md="5" lg="4" Style="min-width: 500px; min-height: 900px; height:900px">
-            <MudPaper Class="pa-6" Elevation="2" Style="min-width: 500px; min-height: 900px; height:900px">
-                <MudStack Spacing="2">
-                    <MudText Typo="Typo.h5">Inputs</MudText>
+        <MudPaper Class="pa-6" Elevation="2" Style="flex: none; width: 600px; height: 840px;">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h5">Inputs</MudText>
 
-                    <!-- Input folder group -->
-                    <MudStack Spacing="1">
-                        <MudTextField Label="Input Folder"
-                                      Value="@_inputFolder"
-                                      ReadOnly="true"
-                                      Variant="Variant.Outlined" />
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   OnClick="SelectInputFolder">
-                            Select Input Folder
-                        </MudButton>
-                    </MudStack>
-
-                    <!-- Output folder group -->
-                    <MudStack Spacing="1">
-                        <MudTextField Label="Output Folder"
-                                      Value="@_outputFolder"
-                                      ReadOnly="true"
-                                      Variant="Variant.Outlined" />
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   OnClick="SelectOutputFolder">
-                            Select Output Folder
-                        </MudButton>
-                    </MudStack>
-
-                    <MudTextField Label="File name" Variant="Variant.Outlined" @bind-Value="FileName" />
-
-                    <MudDivider Class="my-2" />
-
-                    @if (_isBusy)
-                    {
-                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
-                    }
-
-                    <MudStack Row="true" Spacing="2">
-                        <MudButton FullWidth="true"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Success"
-                                   Disabled="@_isBusy"
-                                   OnClick="MergeTextures">
-                            @(_isBusy ? "Working..." : "Merge Textures")
-                        </MudButton>
-
-                        <MudButton FullWidth="true"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Success"
-                                   Disabled="@_isBusy"
-                                   OnClick="PackTextures">
-                            @(_isBusy ? "Working..." : "Pack Extra")
-                        </MudButton>
-
-                        <MudButton FullWidth="true"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Secondary"
-                                   Disabled="@(!_isBusy)"
-                                   OnClick="StopCurrent">
-                            Stop
-                        </MudButton>
-                    </MudStack>
-
-                    <MudExpansionPanels Class="my-2">
-                        <MudExpansionPanel Text="Options">
-                            <MudGrid GutterSize="2">
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Use Extra" @bind-Value="UseExtra" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Pack Extra" @bind-Value="PackExtra" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Fill Transparent" @bind-Value="ReplaceTransperent" Color="Color.Primary" Disabled="@JpgSave" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Save as Jpg" @bind-Value="JpgSave" Color="Color.Primary" />
-                                </MudItem>
-                            </MudGrid>
-                        </MudExpansionPanel>
-
-                        <MudExpansionPanel Text="Base textures">
-                            <MudGrid GutterSize="2">
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Roughness" @bind-Value="BaseMap_Roughness" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Metallic" @bind-Value="BaseMap_Metallic" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Ambient Occlusion" @bind-Value="BaseMap_AmbientOcclusion" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Normal DirectX" @bind-Value="BaseMap_NormalDX" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Normal OpenGL" @bind-Value="BaseMap_NormalOGL" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Normal" @bind-Value="BaseMap_Normal" Color="Color.Primary" />
-                                </MudItem>
-                            </MudGrid>
-                        </MudExpansionPanel>
-
-                        <MudExpansionPanel Text="Extra textures">
-                            <MudGrid GutterSize="2">
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Height" @bind-Value="ExtraMap_Height" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Emissive" @bind-Value="ExtraMap_Emissive" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Diffuse" @bind-Value="ExtraMap_Diffuse" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Specular" @bind-Value="ExtraMap_Specular" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Glossiness" @bind-Value="ExtraMap_Glossiness" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Displacement" @bind-Value="ExtraMap_Displacement" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Refraction" @bind-Value="ExtraMap_Refraction" Color="Color.Primary" />
-                                </MudItem>
-                                <MudItem xs="4">
-                                    <MudSwitch Label="Reflection" @bind-Value="ExtraMap_Reflection" Color="Color.Primary" />
-                                </MudItem>
-                            </MudGrid>
-                        </MudExpansionPanel>
-
-                    </MudExpansionPanels>
-
+                <!-- Input folder group -->
+                <MudStack Spacing="1">
+                    <MudTextField Label="Input Folder"
+                                  Value="@_inputFolder"
+                                  ReadOnly="true"
+                                  Variant="Variant.Outlined" />
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               OnClick="SelectInputFolder">
+                        Select Input Folder
+                    </MudButton>
                 </MudStack>
-            </MudPaper>
-        </MudItem>
 
-        <!-- Right Column -->
+                <!-- Output folder group -->
+                <MudStack Spacing="1">
+                    <MudTextField Label="Output Folder"
+                                  Value="@_outputFolder"
+                                  ReadOnly="true"
+                                  Variant="Variant.Outlined" />
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               OnClick="SelectOutputFolder">
+                        Select Output Folder
+                    </MudButton>
+                </MudStack>
 
-        <MudItem xs="6" md="7" lg="8" Style="min-width: 500px; min-height: 900px; height:900px">
-            <MudPaper Class="pa-6 d-flex flex-column" Elevation="2" Style="height:900px">
-                <MudText Typo="Typo.h5" Class="mb-2">Log</MudText>
+                <MudTextField Label="Name" Variant="Variant.Outlined" @bind-Value="FileName" />
+
+                <MudDivider Class="my-2" />
+
                 @if (_isBusy)
                 {
                     <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-2" />
                 }
-                <MudPaper Class="pa-2" Elevation="0" Style="flex:1; overflow-y:auto;">
+
+                <MudStack Row="true" Spacing="2">
+                    <MudButton FullWidth="true"
+                               Variant="Variant.Filled"
+                               Color="Color.Success"
+                               Disabled="@_isBusy"
+                               OnClick="MergeTextures">
+                        @(_isBusy ? "Working..." : "Merge Textures")
+                    </MudButton>
+
+                    <MudButton FullWidth="true"
+                               Variant="Variant.Filled"
+                               Color="Color.Success"
+                               Disabled="@_isBusy"
+                               OnClick="PackTextures">
+                        @(_isBusy ? "Working..." : "Pack Extra")
+                    </MudButton>
+
+                    <MudButton FullWidth="true"
+                               Variant="Variant.Filled"
+                               Color="Color.Secondary"
+                               Disabled="@(!_isBusy)"
+                               OnClick="StopCurrent">
+                        Stop
+                    </MudButton>
+                </MudStack>
+
+                <MudExpansionPanels Class="my-2">
+                    <MudExpansionPanel Text="Options">
+                        <MudGrid GutterSize="2">
+                            <MudItem xs="4">
+                                <MudSwitch Label="Use Extra" @bind-Value="UseExtra" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Pack Extra" @bind-Value="PackExtra" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Fill Transparent" @bind-Value="ReplaceTransperent" Color="Color.Primary" Disabled="@JpgSave" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Save as Jpg" @bind-Value="JpgSave" Color="Color.Primary" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudExpansionPanel>
+
+                    <MudExpansionPanel Text="Base textures">
+                        <MudGrid GutterSize="2">
+                            <MudItem xs="4">
+                                <MudSwitch Label="Roughness" @bind-Value="BaseMap_Roughness" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Metallic" @bind-Value="BaseMap_Metallic" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Ambient Occlusion" @bind-Value="BaseMap_AmbientOcclusion" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Normal DirectX" @bind-Value="BaseMap_NormalDX" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Normal OpenGL" @bind-Value="BaseMap_NormalOGL" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Normal" @bind-Value="BaseMap_Normal" Color="Color.Primary" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudExpansionPanel>
+
+                    <MudExpansionPanel Text="Extra textures">
+                        <MudGrid GutterSize="2">
+                            <MudItem xs="4">
+                                <MudSwitch Label="Height" @bind-Value="ExtraMap_Height" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Emissive" @bind-Value="ExtraMap_Emissive" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Diffuse" @bind-Value="ExtraMap_Diffuse" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Specular" @bind-Value="ExtraMap_Specular" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Glossiness" @bind-Value="ExtraMap_Glossiness" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Displacement" @bind-Value="ExtraMap_Displacement" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Refraction" @bind-Value="ExtraMap_Refraction" Color="Color.Primary" />
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudSwitch Label="Reflection" @bind-Value="ExtraMap_Reflection" Color="Color.Primary" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudExpansionPanel>
+
+                </MudExpansionPanels>
+
+            </MudStack>
+        </MudPaper>
+        <!-- Right Column -->
+        <MudItem Style="flex: none; width: 800px;">
+            <MudPaper Class="pa-6" Elevation="2" Style="width: 800px; height: 840px; display: flex; flex-direction: column;">
+                <MudText Typo="Typo.h5" Class="mb-2">Log</MudText>
+                <!-- Scrollable log area without border -->
+                <div style="flex: 1; overflow-y: auto; padding: 8px;">
                     <MudText Typo="Typo.body2" Style="white-space: pre-wrap;">
                         @_logText
                     </MudText>
-                </MudPaper>
+                </div>
             </MudPaper>
         </MudItem>
-    </MudGrid>
+    </MudStack>
 </MudContainer>
 
 @code {
@@ -202,7 +195,7 @@
             {
                 // If JpgSave is enabled, we cannot disable ReplaceTransparent
                 return;
-			}
+            }
             _combineFlags = value ? _combineFlags | CombineFlags.ReplaceTransparent : _combineFlags & ~CombineFlags.ReplaceTransparent;
             Preferences.Set("LastCombineFlags", (int)_combineFlags);
         }
@@ -216,7 +209,7 @@
             if (value && !_combineFlags.HasFlag(CombineFlags.ReplaceTransparent))
             {
                 _combineFlags = value ? _combineFlags | CombineFlags.ReplaceTransparent : _combineFlags & ~CombineFlags.ReplaceTransparent;
-			}
+            }
             _combineFlags = value ? _combineFlags | CombineFlags.JpgSave : _combineFlags & ~CombineFlags.JpgSave;
             Preferences.Set("LastCombineFlags", (int)_combineFlags);
         }
@@ -301,6 +294,7 @@
 
     protected override void OnInitialized()
     {
+		_logText += GetStartText();
         PrintBaseOptions();
         _inputFolder = Preferences.Get("LastInputFolder", string.Empty);
         _outputFolder = Preferences.Get("LastOutputFolder", string.Empty);
@@ -442,5 +436,23 @@
     private void Log(string message)
     {
         _logText += $"{message}\n";
+    }
+
+    private string GetStartText()
+    {
+        var introText =
+    "\nTexMergeApp: A desktop tool for combining texture maps into optimized PBR packs.\n" +
+    "Supports merging AO, Roughness, and Metallic into a single texture.\n" +
+    "Packing and merging results are saved in the selected Output Folder.\n\n" +
+    "\"Pack Extra\" creates an additional packed texture where:\n" +
+    "- Red channel: Ambient Occlusion\n" +
+    "- Green channel: Roughness\n" +
+    "- Blue channel: Metallic\n\n" +
+    "Options:\n" +
+    "- Use Extra: Enables inclusion of additional maps during merging.\n" +
+    "- Pack Extra: Enables creation of the extra packed texture with AO/Roughness/Metallic.\n" +
+    "- Fill Transparent: Replaces fully transparent pixels with a solid fallback before merging.\n" +
+    "- Save as JPG: Saves output as JPG instead of PNG (transparency will be discarded).\n\n";
+        return introText;
     }
 }
