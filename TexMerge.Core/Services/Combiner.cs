@@ -1,6 +1,5 @@
 ﻿using ImageMagick;
 using TexMerge.Core.Enums;
-using TexMerge.Core.Models;
 
 namespace TexMerge.Core.Services
 {

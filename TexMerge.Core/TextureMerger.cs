@@ -1,5 +1,4 @@
-﻿using System.Text;
-using TexMerge.Core.Models;
+﻿using TexMerge.Core.Models;
 using TexMerge.Core.Services;
 
 namespace TexMerge.Core

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Maui.LifecycleEvents;
+﻿using Microsoft.Maui.LifecycleEvents;
 using MudBlazor.Services;
 using TexMerge.Core;
 #if WINDOWS
@@ -7,8 +6,6 @@ using TexMergeApp.Services;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Windows.Graphics;
-using Microsoft.UI.Xaml;
-using WinRT.Interop;
 #endif
 
 
@@ -16,21 +13,21 @@ namespace TexMergeApp;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-			.ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-			});
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            });
 
-		builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddMauiBlazorWebView();
         builder.Services.AddMudServices();
-		builder.Services.AddSingleton<ITextureMerger, TextureMerger>();
+        builder.Services.AddSingleton<ITextureMerger, TextureMerger>();
 #if WINDOWS
-		builder.Services.AddSingleton<IFolderPicker, Platforms.Windows.FolderPickerService>();
+        builder.Services.AddSingleton<IFolderPicker, Platforms.Windows.FolderPickerService>();
 
         var width = 1184;
         var height = 740;
@@ -41,7 +38,7 @@ public static class MauiProgram
             {
                 windows.OnWindowCreated(window =>
                 {
-                    var mauiWinUIWindow = (MauiWinUIWindow)window; 
+                    var mauiWinUIWindow = (MauiWinUIWindow)window;
 
                     var nativeWindow = mauiWinUIWindow.WindowHandle;
                     var windowId = Win32Interop.GetWindowIdFromWindow(nativeWindow);
@@ -75,6 +72,6 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
-	}
+        return builder.Build();
+    }
 }
