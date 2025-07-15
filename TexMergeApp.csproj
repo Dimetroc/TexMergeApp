@@ -39,7 +39,6 @@
         <PublishSingleFile>false</PublishSingleFile>
         <PublishTrimmed>false</PublishTrimmed>
         <EnableComHosting>true</EnableComHosting>
-        <IncludeSatelliteAssembliesForPublish>false</IncludeSatelliteAssembliesForPublish>
 
         <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
         <SelfContained>false</SelfContained>
@@ -48,25 +47,16 @@
         <Platforms>AnyCPU;x64</Platforms>
         <EnableDefaultItems>true</EnableDefaultItems>
         <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+        <IncludeSatelliteAssembliesForPublish>false</IncludeSatelliteAssembliesForPublish>
+        <SatelliteResourceLanguages>en-us;en-GB</SatelliteResourceLanguages>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
-        <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
-
-        <!-- Images -->
-        <MauiImage Include="Resources\Images\*" />
-        <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
-
         <!-- Custom Fonts -->
-        <MauiFont Include="Resources\Fonts\*" />
-
-        <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
-        <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-    </ItemGroup>
+        <MauiFont Include="Resources\Fonts\*" />    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.6.0" />
@@ -77,4 +67,20 @@
         <PackageReference Include="MudBlazor.Extensions" Version="8.9.0" />
     </ItemGroup>
 
+    <Target Name="RemoveMuiFolders" AfterTargets="Publish">
+      <!-- Collect all .mui files except those under en-US -->
+      <ItemGroup>
+        <MuiFiles Include="$(PublishDir)**\*.mui" Exclude="$(PublishDir)**\en-US\**\*.mui" />
+      </ItemGroup>
+
+      <!-- Derive unique parent folders -->
+      <ItemGroup>
+        <MuiFoldersToDelete Include="@(MuiFiles->'%(RootDir)%(Directory)')" />
+        <MuiFoldersToDelete Remove="@(MuiFoldersToDelete)" Condition="'%(MuiFoldersToDelete.Identity)' == '$(PublishDir)en-US\'" />
+      </ItemGroup>
+
+      <!-- Delete each folder -->
+      <Message Text="Deleting folders with .mui files (excluding en-US)..." />
+      <RemoveDir Directories="@(MuiFoldersToDelete -&gt; Distinct())" />
+    </Target>
 </Project>

@@ -147,7 +147,8 @@ namespace TexMerge.Core.Services
             var files = Directory.GetFiles(folderPath, "*" + extension, SearchOption.TopDirectoryOnly);
 
             var result = files.FirstOrDefault(file =>
-                suffixes.Any(suffix => Path.GetFileNameWithoutExtension(file).EndsWith(suffix, StringComparison.OrdinalIgnoreCase)));
+                suffixes.Any(suffix => Path.GetFileNameWithoutExtension(file).EndsWith(suffix, StringComparison.OrdinalIgnoreCase)) &&
+                !Path.GetFileNameWithoutExtension(file).EndsWith(Constants.AoRM, StringComparison.OrdinalIgnoreCase));
 
             if (!string.IsNullOrEmpty(result)) return result;
 

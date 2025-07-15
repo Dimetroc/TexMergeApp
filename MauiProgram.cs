@@ -1,13 +1,16 @@
 ﻿using Microsoft.Maui.LifecycleEvents;
 using MudBlazor.Services;
 using TexMerge.Core;
+
 #if WINDOWS
 using TexMergeApp.Services;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Windows.Graphics;
 #endif
-
+#if DEBUG
+using Microsoft.Extensions.Logging;
+#endif
 
 namespace TexMergeApp;
 
